@@ -83,3 +83,7 @@ Mobile App Dev - My App Brainstorm
    - **Market:** Unique & Niche. It targets a very "well-defined audience": hyper-local small businesses ("delis, bodegas, etc.") and local job seekers, a market traditional job sites miss.
    - **Habit:** Medium-High. For seekers, the "Gig Badge" system ("Reliability Badge," "Skill Badges") and "Immediate Paid GGas" (Red pins) encourage repeat use. For businesses, use is less frequent but high-value.
    - **Scope:** Well-Formed. This is the most "clearly defined" product. It requires a map interface with pin logic, a robust "Trust & Accountability" system (vetting, badges, 3-strike policy), and an escrow/payment system ("Materials" Escrow, "Gig Agreement" checkbox). The scope is complex but very clear.
+
+   ## Final Choice
+
+   Final idea: **SideGig** — chosen because it is the most clearly defined, mobile-native, and narrow in scope while addressing a well-scoped real-world problem. SideGig's map-centric UI, clear business model (hyper-local micro-jobs), and concrete MVP requirements (pin/map interface, basic vetting/badges, and simple escrow) make it feasible to prototype and scope for the course.
