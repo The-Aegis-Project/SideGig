@@ -9,9 +9,9 @@ Mobile App Dev - My App Brainstorm
 5. Notion
 6. Uber
 7. Instagram
-8. Yelp
+8. LinkedIn
 9. Gmail
-10. Waze
+10. Indeed
 
 ## Favorite Existing Apps - Categorize and Evaluate
 ### Spotify
@@ -33,7 +33,7 @@ Mobile App Dev - My App Brainstorm
 1.  **Aegis (The AI Contextual Layer):** A "super-agency" Al that acts as an intelligent, proactive meta-layer above a user's existing applications (Google Calendar, Gmail, Slack, etc.) to automate the cognitive load of organization.
 2.  **Anchor (Spatial Memos):** A productivity utility that allows users to "pin" digital information (notes, tasks, videos) to real-world objects and locations using augmented reality.
 3.  **SoundScape (Personal AI DJ):** A generative Al music app that acts as a personal, intelligent AI DJ, creating custom, beat-matched transitions or "mini-remixes" between songs to solve the "vibe-killing" gap.
-4.  **GigLocal:** A hyper-local app that connects job seekers with small, local businesses for "Micro-Jobs" and immediate gigs, using a map interface.
+4.  **SideGig:** A hyper-local app that connects job seekers with small, local businesses for "Micro-Jobs" and immediate gigs, using a map interface.
 5.  **Smart Pantry Manager:** Use the camera to scan grocery receipts or barcodes. The app tracks inventory, expiration dates, and suggests recipes using ingredients you already have.
 6.  **AI Language Tutor:** A conversational bot that practices real-world scenarios with you (e.g., ordering coffee in French) and gives instant, judgment-free feedback on pronunciation and grammar.
 7.  **Local Event Aggregator:** Scrapes small community boards, university sites, and social media to find small, "hyper-local" events (like a farmer's market, library reading, or small band) and puts them on a simple map.
@@ -45,7 +45,7 @@ Mobile App Dev - My App Brainstorm
 1. Aegis (The AI Contextual Layer)
 2. Anchor (Spatial Memos)
 3. SoundScape (Personal AI DJ)
-4. GigLocal
+4. SideGig
 
 ## New App Ideas - Evaluate and Categorize
 1. **Aegis (The AI Contextual Layer)**
@@ -75,7 +75,7 @@ Mobile App Dev - My App Brainstorm
    - **Habit:** High. Music listening is a powerful daily habit. This app would be used as frequently as a user listens to music.
    - **Scope:** Medium. The MVP scope is well-defined: integrate two main APIs (Spotify API for playlists/tracks and a Generative Audio API like Udio or fal.ai) with a simple backend (Appwrite) to manage user keys and preferences.
 
-4. **GigLocal**
+4. **SideGig**
    - **Description**: "The 'Help Wanted' sign for your neighborhood, right on your phone." It connects local job seekers with small, local businesses for "Micro-Jobs" and immediate gigs.
    - **Category:** Marketplace / Hyper-Local Utility
    - **Mobile:** Very High. The app is "uniquely mobile." Its core feature is a "map interface" using location. It also uses the camera for secure ID scans and receipt photos for material reimbursement.

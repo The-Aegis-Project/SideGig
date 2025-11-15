@@ -1,4 +1,4 @@
-# GigLocal
+# SideGig
 
 ## Table of Contents
 
@@ -11,7 +11,7 @@
 
 ### Description
 
-GigLocal is a hyper-local mobile marketplace designed to bridge the gap between small, "off-the-grid" local businesses (like delis, bodegas, and mom-and-pop shops) and local job seekers needing immediate, flexible work. Our core concept is to be "The 'Help Wanted' sign for your neighborhood, right on your phone."
+SideGig is a hyper-local mobile marketplace designed to bridge the gap between small, "off-the-grid" local businesses (like delis, bodegas, and mom-and-pop shops) and local job seekers needing immediate, flexible work. Our core concept is to be "The 'Help Wanted' sign for your neighborhood, right on your phone."
 
 The app is built on a map-based interface showing real-time job opportunities. Trust and safety are paramount, enforced through a robust verification system for both businesses and seekers, a reputation system with badges, and a secure escrow payment model to protect all parties.
 
@@ -35,7 +35,7 @@ The app is built on a map-based interface showing real-time job opportunities. T
 **Seeker (Job Seeker)**
 
 * User (Seeker) can create an account, select the "Seeker" role, and complete identity verification via a secure ID scan.
-* User (Seeker) must pass the "GigLocal Basics" professionalism quiz to activate their account.
+* User (Seeker) must pass the "SideGig Basics" professionalism quiz to activate their account.
 * User (Seeker) can view a map of their immediate area showing available gigs.
 * User (Seeker) can visually differentiate between "Immediate Paid Gigs" (Red Pins) and "Project Gigs" (Blue Pins).
 * User (Seeker) can tap a gig pin to view detailed information: job description, pay (hourly/flat-rate), Gig Budget, and Materials Budget.
@@ -69,16 +69,22 @@ The app is built on a map-based interface showing real-time job opportunities. T
 
 * User (Seeker) can filter the gig map by pay, gig type, or required skills.
 * User (Seeker) can add a simple portfolio (e.g., photos of work) to their profile.
+* User (Seeker) can save or "watch" gigs for later.
 * User (Business) can save gig descriptions as templates for common, recurring needs.
 * User (Business) can see an applicant's "Reliability Badge" and "Skill Badges" prominently on their application.
 * User (System) can automatically suspend any user (Seeker or Business) who receives three formally reported 1-star reviews.
 
 ### 2. Screen Archetypes
 
+* \[X\] **Login / Sign Up Screen**
+    * Required User Feature: User can log in with email/password.
+    * Required User Feature: User can sign up for a new account (email/password).
+    * Required User Feature: User can use "Forgot Password" to retrieve account access.
+    * Required User Feature: User can sign up or log in using SSO (Google, Apple, Facebook, LinkedIn).
 * \[X\] **Onboarding (Role Select)**
-    * Required User Feature: User can select their role: "I need work" (Seeker) or "I need help" (Business).
+    * Required User Feature: After sign up, user must select their role: "I need work" (Seeker) or "I need help" (Business).
 * \[X\] **Seeker Verification Flow**
-    * Required User Feature: User (Seeker) can complete the secure ID scan and take the "GigLocal Basics" professionalism quiz.
+    * Required User Feature: User (Seeker) can complete the secure ID scan and take the "SideGig Basics" professionalism quiz.
 * \[X\] **Business Verification Flow**
     * Required User Feature: User (Business) can link their Google/Yelp profile or request a physical verification code via mail.
 * \[X\] **Gig Map (Seeker Home)**
@@ -104,87 +110,55 @@ The app is built on a map-based interface showing real-time job opportunities. T
 
 **Tab Navigation (Seeker)**
 
-* \[X\] **Map (Default):** Main gig-finding interface.
+* \[X\] **Map (Home):** Main gig-finding map interface.
 * \[X\] **My Gigs:** List of applied, active, and completed gigs.
+* \[X\] **Saved:** A place to "watch" gigs or manage alerts.
 * \[X\] **Messages:** In-app chat hub with businesses.
 * \[X\] **Profile:** View/edit profile, see badges, manage payment info.
 
 **Tab Navigation (Business)**
 
-* \[X\] **Dashboard (Default):** Manage active gigs, review applicants.
-* \[X\] **Post Gig (+ Button):** A persistent or central tab button to quickly create a new gig.
+* \[X\] **Dashboard (Home):** Manage active gigs, review applicant counts.
+* \[X\] **Applicants:** A dedicated list to review all new applicants.
+* \[X\] **Post Gig (+ Button):** The large, central button to create a new gig.
 * \[X\] **Messages:** In-app chat hub with seekers.
 * \[X\] **Profile:** View/edit business profile, see ratings, manage billing.
 
 **Flow Navigation (Screen to Screen)**
 
 * \[X\] **App Launch**
-    * Leads to Onboarding (if first time) OR Map (if logged-in Seeker) / Dashboard (if logged-in Business).
-* \[X\] **Onboarding**
-    * Leads to Seeker Verification Flow or Business Verification Flow.
+    * Leads to **Login / Sign Up Screen**.
+* \[X\] **Login / Sign Up Screen**
+    * Successful login leads to **Map (Seeker)** or **Dashboard (Business)**.
+    * Successful sign up leads to **Onboarding (Role Select)**.
+* \[X\] **Onboarding (Role Select)**
+    * Leads to **Seeker Verification Flow** or **Business Verification Flow**.
 * \[X\] **Verification Success**
-    * Leads to Map (Seeker) or Dashboard (Business).
+    * Leads to **Map (Seeker)** or **Dashboard (Business)**.
 * \[X\] **Map (Seeker)**
-    * Tapping a pin leads to Gig Details.
+    * Tapping a pin leads to **Gig Details**.
 * \[X\] **Gig Details (Seeker)**
     * Tapping "Apply" submits the application.
 * \[X\] **Dashboard (Business)**
-    * Tapping "Post Gig" leads to Post Gig Flow.
+    * Tapping "Post Gig" (+) leads to **Post Gig Flow**.
     * Tapping "Review Applicants" on a gig shows a list of seekers.
-    * Tapping "Select Seeker" leads to Fund Escrow Screen.
+    * Tapping "Select Seeker" leads to **Fund Escrow Screen**.
 * \[X\] **Fund Escrow Screen (Business)**
-    * Successful payment leads to Gig Agreement Screen (for both users).
+    * Successful payment leads to **Gig Agreement Screen** (for both users).
 * \[X\] **Gig Agreement Screen**
-    * Once both parties accept, leads to Active Gig Screen / Chat.
+    * Once both parties accept, leads to **Active Gig Screen / Chat**.
 * \[X\] **Active Gig Screen**
     * Seeker tapping "Mark as Complete" notifies Business to approve payment.
 * \[X\] **Approve Payment (Business)**
-    * Triggers payment release and leads to Review Screen for both parties.
+    * Triggers payment release and leads to **Review Screen** for both parties.
 
 ## Wireframes
 
-\[Hand-sketched wireframes to be added. Key screens to design:
+### Wireframe (Low-Fidelity — Hand‑Sketched)
 
-* Seeker Map View: The main map interface, showing the user's location and nearby Red (Immediate) and Blue (Project) pins.
-* Gig Details Modal: The card that appears when a Seeker taps a pin, showing business name, rating, gig title, pay, budgets, and an "Apply" button.
-* Business Post Gig Flow: A multi-step screen for businesses to define the gig (Type, Scope, Budgets, Description).
-* Active Gig Screen: The chat interface between the two parties, with clear "Upload Receipt" and "Mark as Complete" buttons for the Seeker, and an "Approve Payment" button for the Business.\]
+![Low-fidelity wireframes overview](assets/low-fidelity-wireframe.jpeg)
 
-\[BONUS] Digital Wireframes & Mockups
-
-\[To be created in Figma/Sketch]
-
-\[BONUS] Interactive Prototype
-
-\[To be created in Figma/InVision]
-
-## Schema
-
-### Models
-
-**User (Base Model)**
-| Property | Type | Description |
-|---|---|---|
-| userId | String | Unique ID for the user (primary key). |
-| email | String | User's login email. |
-| passwordHash | String | Hashed password. |
-| role | String | "seeker" or "business". |
-| createdAt | DateTime | Timestamp of account creation. |
-| threeStrikeCount | Number | Count of 1-star reports (0-3). |
-| isSuspended | Boolean | True if threeStrikeCount >= 3. |
-
-**SeekerProfile**
-| Property | Type | Description |
-|---|---|---|
-| userId | Pointer (User) | Links to the base User model (primary key). |
-| fullName | String | User's full name. |
-| profileImageUrl | String | URL to profile photo. |
-| isIdVerified | Boolean | Status from secure ID scan. |
-| passedBasicsQuiz | Boolean | Status of professionalism quiz. |
-| reliabilityBadge | Boolean | True if completedGigs >= 5. |
-| skillBadges | Array (String) | List of awarded skill badges (e.g., "Web Design", "Stocking"). |
-| avgRating | Number | Average of all Review scores (1-5). |
-| completedGigs | Number | Counter for reliability badge. |
+Caption: Low-fidelity hand‑sketch overview showing primary screens and flows and how business and seeker users move between Login, Profile, Gig Details, Post Gig, Active Gig/Chat, and Map.
 
 **BusinessProfile**
 | Property | Type | Description |
@@ -250,13 +224,19 @@ The app is built on a map-based interface showing real-time job opportunities. T
 | type | String | "escrow\_funding", "payment\_release", "materials\_reimbursement". |
 | status | String | "pending", "complete", "failed". |
 | createdAt | DateTime | Timestamp of transaction. |
-| appFee | Number | The fee collected by GigLocal (in cents). |
+| appFee | Number | The fee collected by SideGig (in cents). |
 
 ### Networking
 
 **Onboarding:**
 
-* `[POST] /users/signup` - Create base User.
+* `[POST] /auth/signup` - Create base User with email/pass.
+* `[POST] /auth/login` - Log in with email/pass.
+* `[POST] /auth/forgot-password` - Send password reset link.
+* `[POST] /auth/sso/google` - Handle Google SSO callback.
+* `[POST] /auth/sso/apple` - Handle Apple SSO callback.
+* `[POST] /auth/sso/facebook` - Handle Facebook SSO callback.
+* `[POST] /auth/sso/linkedin` - Handle LinkedIn SSO callback.
 * `[POST] /seekers/verify-id` - Submit ID scan data.
 * `[POST] /seekers/submit-quiz` - Submit quiz results.
 * `[POST] /business/verify-link` - Submit Google/Yelp link.
@@ -266,12 +246,14 @@ The app is built on a map-based interface showing real-time job opportunities. T
 * `[GET] /gigs?lat=...&lng=...&radius=...` - Retrieve all open gigs in a map area.
 * `[GET] /gigs/{gigId}` - Get details for one gig.
 * `[POST] /gigs/{gigId}/apply` - Apply for a gig.
+* `[GET] /gigs/saved` - Get all gigs saved by the user.
 
 **Business (Dashboard/Post):**
 
 * `[POST] /gigs` - Create a new gig.
 * `[GET] /business/{businessId}/gigs` - Get all gigs for a business (active, past).
 * `[GET] /gigs/{gigId}/applicants` - Get all seekers who applied.
+* `[GET] /business/applicants/all` - Get all applicants for all active gigs.
 * `[POST] /gigs/{gigId}/assign` - Assign a seeker to a gig (sends notification).
 
 **Active Gig:**
@@ -280,7 +262,7 @@ The app is built on a map-based interface showing real-time job opportunities. T
 * `[POST] /agreements/{agreementId}/sign` - (Seeker/Business) Sign the agreement.
 * `[GET] /chat/{gigId}/messages` - Get chat messages.
 * `[POST] /chat/{gigId}/messages` - Send a message (triggers push notification).
-* `[POST] /gs/{gigId}/upload-receipt` - (Seeker) Upload material receipt image.
+* `[POST] /gigs/{gigId}/upload-receipt` - (Seeker) Upload material receipt image.
 * `[POST] /gigs/{gigId}/complete` - (Seeker) Mark gig as complete.
 * `[POST] /gigs/{gigId}/release-payment` - (Business) Approve receipt and release escrow.
 
