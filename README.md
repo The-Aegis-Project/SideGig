@@ -76,80 +76,80 @@ The app is built on a map-based interface showing real-time job opportunities. T
 
 ### 2. Screen Archetypes
 
-* \[X\] **Login / Sign Up Screen**
+* \[ \] **Login / Sign Up Screen**
     * Required User Feature: User can log in with email/password.
     * Required User Feature: User can sign up for a new account (email/password).
     * Required User Feature: User can use "Forgot Password" to retrieve account access.
     * Required User Feature: User can sign up or log in using SSO (Google, Apple, Facebook, LinkedIn).
-* \[X\] **Onboarding (Role Select)**
+* \[ \] **Onboarding (Role Select)**
     * Required User Feature: After sign up, user must select their role: "I need work" (Seeker) or "I need help" (Business).
-* \[X\] **Seeker Verification Flow**
+* \[ \] **Seeker Verification Flow**
     * Required User Feature: User (Seeker) can complete the secure ID scan and take the "SideGig Basics" professionalism quiz.
-* \[X\] **Business Verification Flow**
+* \[ \] **Business Verification Flow**
     * Required User Feature: User (Business) can link their Google/Yelp profile or request a physical verification code via mail.
-* \[X\] **Gig Map (Seeker Home)**
+* \[ \] **Gig Map (Seeker Home)**
     * Required User Feature: User (Seeker) can see all available Red and Blue gig pins in their local area on a map.
-* \[X\] **Gig Details Screen**
+* \[ \] **Gig Details Screen**
     * Required User Feature: User (Seeker) can tap a pin to see gig details, pay, budgets, and business info, and then tap "Apply."
-* \[X\] **Post Gig Flow (Business Home)**
+* \[ \] **Post Gig Flow (Business Home)**
     * Required User Feature: User (Business) can create a new gig, defining the title, description, type, pay scope, Gig Budget, and Materials Budget.
-* \[X\] **Business Dashboard**
+* \[ \] **Business Dashboard**
     * Required User Feature: User (Business) can see their posted gigs, review applicants for each, and manage active gigs.
-* \[X\] **Fund Escrow Screen**
+* \[ \] **Fund Escrow Screen**
     * Required User Feature: User (Business) can add a payment method and fund the gig's total escrow.
-* \[X\] **Gig Agreement Screen**
+* \[ \] **Gig Agreement Screen**
     * Required User Feature: Both users must read a plain-English summary of the job and check a box to agree to the terms.
-* \[X\] **Active Gig Screen / Chat**
+* \[ \] **Active Gig Screen / Chat**
     * Required User Feature: Both users can chat, and the Seeker can access a button to "Upload Material Receipt" and "Mark as Complete."
-* \[X\] **Review Screen**
+* \[ \] **Review Screen**
     * Required User Feature: After completion, both users are prompted to leave a 1-5 star review. The business is also given the option to award "Skill Badges."
-* \[X\] **Profile Screen (Seeker & Business)**
+* \[ \] **Profile Screen (Seeker & Business)**
     * Required User Feature: Users can view their own (or another user's) profile, including average rating, gig history, and earned/awarded badges.
 
 ### 3. Navigation
 
 **Tab Navigation (Seeker)**
 
-* \[X\] **Map (Home):** Main gig-finding map interface.
-* \[X\] **My Gigs:** List of applied, active, and completed gigs.
-* \[X\] **Saved:** A place to "watch" gigs or manage alerts.
-* \[X\] **Messages:** In-app chat hub with businesses.
-* \[X\] **Profile:** View/edit profile, see badges, manage payment info.
+* \[ \] **Map (Home):** Main gig-finding map interface.
+* \[ \] **My Gigs:** List of applied, active, and completed gigs.
+* \[ \] **Saved:** A place to "watch" gigs or manage alerts.
+* \[ \] **Messages:** In-app chat hub with businesses.
+* \[ \] **Profile:** View/edit profile, see badges, manage payment info.
 
 **Tab Navigation (Business)**
 
-* \[X\] **Dashboard (Home):** Manage active gigs, review applicant counts.
-* \[X\] **Applicants:** A dedicated list to review all new applicants.
-* \[X\] **Post Gig (+ Button):** The large, central button to create a new gig.
-* \[X\] **Messages:** In-app chat hub with seekers.
-* \[X\] **Profile:** View/edit business profile, see ratings, manage billing.
+* \[ \] **Dashboard (Home):** Manage active gigs, review applicant counts.
+* \[ \] **Applicants:** A dedicated list to review all new applicants.
+* \[ \] **Post Gig (+ Button):** The large, central button to create a new gig.
+* \[ \] **Messages:** In-app chat hub with seekers.
+* \[ \] **Profile:** View/edit business profile, see ratings, manage billing.
 
 **Flow Navigation (Screen to Screen)**
 
-* \[X\] **App Launch**
+* \[ \] **App Launch**
     * Leads to **Login / Sign Up Screen**.
-* \[X\] **Login / Sign Up Screen**
+* \[ \] **Login / Sign Up Screen**
     * Successful login leads to **Map (Seeker)** or **Dashboard (Business)**.
     * Successful sign up leads to **Onboarding (Role Select)**.
-* \[X\] **Onboarding (Role Select)**
+* \[ \] **Onboarding (Role Select)**
     * Leads to **Seeker Verification Flow** or **Business Verification Flow**.
-* \[X\] **Verification Success**
+* \[ \] **Verification Success**
     * Leads to **Map (Seeker)** or **Dashboard (Business)**.
-* \[X\] **Map (Seeker)**
+* \[ \] **Map (Seeker)**
     * Tapping a pin leads to **Gig Details**.
-* \[X\] **Gig Details (Seeker)**
+* \[ \] **Gig Details (Seeker)**
     * Tapping "Apply" submits the application.
-* \[X\] **Dashboard (Business)**
+* \[ \] **Dashboard (Business)**
     * Tapping "Post Gig" (+) leads to **Post Gig Flow**.
     * Tapping "Review Applicants" on a gig shows a list of seekers.
     * Tapping "Select Seeker" leads to **Fund Escrow Screen**.
-* \[X\] **Fund Escrow Screen (Business)**
+* \[ \] **Fund Escrow Screen (Business)**
     * Successful payment leads to **Gig Agreement Screen** (for both users).
-* \[X\] **Gig Agreement Screen**
+* \[ \] **Gig Agreement Screen**
     * Once both parties accept, leads to **Active Gig Screen / Chat**.
-* \[X\] **Active Gig Screen**
+* \[ \] **Active Gig Screen**
     * Seeker tapping "Mark as Complete" notifies Business to approve payment.
-* \[X\] **Approve Payment (Business)**
+* \[ \] **Approve Payment (Business)**
     * Triggers payment release and leads to **Review Screen** for both parties.
 
 ## Wireframes
@@ -159,6 +159,18 @@ The app is built on a map-based interface showing real-time job opportunities. T
 ![Low-fidelity wireframes overview](assets/low-fidelity-wireframe.jpeg)
 
 Caption: Low-fidelity hand‑sketch overview showing primary screens and flows and how business and seeker users move between Login, Profile, Gig Details, Post Gig, Active Gig/Chat, and Map.
+
+### Wireframe (High-Fidelity — Digital)
+
+![High-fidelity wireframe placeholder](assets/wireframe-highfi.svg)
+
+Caption: High-fidelity digital wireframe placeholder. Replace `assets/wireframe-highfi.svg` with exported mockups (PNG/SVG/JPG) or drag in your Figma/Sketch/Adobe XD exports.
+
+### Prototype Demo (Optional / Bonus)
+
+Add a short interactive prototype video/gif here once available. Example placeholder path: `assets/prototype-demo.mp4`.
+
+If you want me to scaffold a small `assets/prototype-demo-placeholder.txt` or a `course_submission.md`, see `course_submission.md` in the repo root.
 
 **BusinessProfile**
 | Property | Type | Description |
