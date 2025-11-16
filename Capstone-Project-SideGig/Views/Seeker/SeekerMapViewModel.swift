@@ -1,5 +1,13 @@
+//
+//  SeekerMapViewModel.swift
+//  Capstone-Project-SideGig
+//
+//  Created by Sebastian Torres on 11/15/25.
+//
+
 import Foundation
 import CoreLocation
+import Combine
 
 @MainActor
 final class SeekerMapViewModel: ObservableObject {
@@ -7,9 +15,14 @@ final class SeekerMapViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
-    private let backend: BackendService
+    private var backend: BackendService
 
     init(backend: BackendService) {
+        self.backend = backend
+    }
+
+    // Allow replacing the backend instance after initialization (used by the view)
+    func updateBackend(_ backend: BackendService) {
         self.backend = backend
     }
 

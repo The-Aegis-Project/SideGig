@@ -5,8 +5,8 @@
 //  Created by Sebastian Torres on 11/15/25.
 //
 
-
 import SwiftUI
+import Combine
 
 struct SeekerTabView: View {
     @EnvironmentObject var appState: AppState

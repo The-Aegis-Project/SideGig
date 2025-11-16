@@ -1,3 +1,10 @@
+//
+//  SeekerMapView.swift
+//  Capstone-Project-SideGig
+//
+//  Created by Sebastian Torres on 11/15/25.
+//
+
 import SwiftUI
 import MapKit
 
@@ -46,12 +53,8 @@ struct SeekerMapView: View {
                 GigDetailsView(gig: gig)
             }
             .onAppear {
-                // Replace view model with one using the real backend from environment
-                if type(of: viewModel) == SeekerMapViewModel.self {
-                    // Already correct type; reassign with real backend if not same instance
-                    let newVM = SeekerMapViewModel(backend: appState.backend)
-                    _viewModel.wrappedValue = newVM
-                }
+                // Inject the real backend into the existing StateObject view model
+                viewModel.updateBackend(appState.backend)
                 locationService.requestWhenInUse()
                 if let loc = locationService.lastLocation {
                     region.center = loc.coordinate
