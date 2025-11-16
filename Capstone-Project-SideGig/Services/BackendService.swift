@@ -11,6 +11,13 @@ protocol BackendService {
     func fetchUserRole(userId: String) async throws -> UserRole?
     func setUserRole(userId: String, role: UserRole) async throws
     func fetchNearbyGigs(lat: Double, lng: Double, radiusMeters: Double) async throws -> [Gig]
+    // Request a password reset email for the given address. Implementations may
+    // integrate with the backend provider to send a reset link or temporary code.
+    func requestPasswordReset(email: String) async throws
+    // SSO sign-in stubs for external providers. Implementations should wire
+    // to Apple/Google sign-in flows when available.
+    func signInWithApple() async throws
+    func signInWithGoogle() async throws
 }
 
 final class Back4AppService: BackendService {
@@ -151,6 +158,26 @@ final class Back4AppService: BackendService {
         }
 
         return filtered
+    }
+
+    func requestPasswordReset(email: String) async throws {
+        // Back4App / ParseSwift does not provide a typed async helper in this
+        // minimal example. Replace this stub with a real endpoint call when
+        // integrating with your backend or Parse Cloud Function.
+        // For now, act as a no-op to simulate success.
+        return
+    }
+
+    func signInWithApple() async throws {
+        // Placeholder stub. Implement ASAuthorizationAppleIDProvider flow in
+        // the app and exchange credential with the backend as needed.
+        throw NSError(domain: "SSO", code: 1, userInfo: [NSLocalizedDescriptionKey: "Sign in with Apple not implemented yet"]) 
+    }
+
+    func signInWithGoogle() async throws {
+        // Placeholder stub. Integrate Google Sign-In SDK and exchange tokens
+        // with your backend implementation.
+        throw NSError(domain: "SSO", code: 1, userInfo: [NSLocalizedDescriptionKey: "Sign in with Google not implemented yet"]) 
     }
 
     // MARK: - Mapping
