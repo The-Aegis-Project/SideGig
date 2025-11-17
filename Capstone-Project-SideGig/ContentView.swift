@@ -17,6 +17,10 @@ struct ContentView: View {
                 LoginView()
             case .roleSelect:
                 RoleSelectView()
+            case .seekerOnboarding:
+                SeekerOnboardingView()
+            case .businessOnboarding:
+                BusinessOnboardingView()
             case .seekerHome:
                 SeekerTabView()
             case .businessHome:
@@ -30,3 +34,4 @@ struct ContentView: View {
 #Preview {
     ContentView().environmentObject(AppState(backend: Back4AppService()))
 }
+

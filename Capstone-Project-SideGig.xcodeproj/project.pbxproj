@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B730B5872ECA7B0F0067B725 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B730B5862ECA7B0F0067B725 /* GoogleSignIn */; };
+		B730B5892ECA7B0F0067B725 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B730B5882ECA7B0F0067B725 /* GoogleSignInSwift */; };
 		B7F3A3672EC96B1900B34409 /* ParseSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B7F3A3662EC96B1900B34409 /* ParseSwift */; };
 /* End PBXBuildFile section */
 
@@ -29,7 +31,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B730B5892ECA7B0F0067B725 /* GoogleSignInSwift in Frameworks */,
 				B7F3A3672EC96B1900B34409 /* ParseSwift in Frameworks */,
+				B730B5872ECA7B0F0067B725 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +79,8 @@
 			name = "Capstone-Project-SideGig";
 			packageProductDependencies = (
 				B7F3A3662EC96B1900B34409 /* ParseSwift */,
+				B730B5862ECA7B0F0067B725 /* GoogleSignIn */,
+				B730B5882ECA7B0F0067B725 /* GoogleSignInSwift */,
 			);
 			productName = "Capstone-Project-SideGig";
 			productReference = B742810F2EC947E600E466F9 /* Capstone-Project-SideGig.app */;
@@ -106,6 +112,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				B7F3A3652EC96B1900B34409 /* XCRemoteSwiftPackageReference "Parse-Swift" */,
+				B730B5852ECA7B0F0067B725 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B74281102EC947E600E466F9 /* Products */;
@@ -275,9 +282,14 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				"INFOPLIST_FILE[sdk=*]" = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Required to access location while using the app.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Required to show nearby gigs and the user's location.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -309,9 +321,13 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Required to access location while using the app.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Required to show nearby gigs and the user's location.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -355,6 +371,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		B730B5852ECA7B0F0067B725 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
 		B7F3A3652EC96B1900B34409 /* XCRemoteSwiftPackageReference "Parse-Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/parse-community/Parse-Swift";
@@ -366,6 +390,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B730B5862ECA7B0F0067B725 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B730B5852ECA7B0F0067B725 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		B730B5882ECA7B0F0067B725 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B730B5852ECA7B0F0067B725 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
 		B7F3A3662EC96B1900B34409 /* ParseSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B7F3A3652EC96B1900B34409 /* XCRemoteSwiftPackageReference "Parse-Swift" */;

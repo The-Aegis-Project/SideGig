@@ -14,8 +14,17 @@ struct BusinessProfile: Identifiable, Codable, Hashable {
     var address: String
     var latitude: Double
     var longitude: Double
-    var isVerifiedLocal: Bool
-    var verificationMethod: String? // "google", "yelp", or "mail"
+    
+    // --- New fields for Business Verification ---
+    var isVerifiedLocal: Bool // Combined verification status
+    var verificationMethod: String? // "google", "yelp", "mail"
+    var linkedProfilePlatform: String? // "Google Business Profile", "Yelp"
+    var linkedProfileId: String? // e.g., Google Place ID, Yelp Business ID
+    var mailVerificationCode: String? // Temporary code sent for mail verification
+    var mailVerificationInitiatedAt: Date?
+    var mailVerificationConfirmedAt: Date?
+    // --- End New fields ---
+
     var avgRating: Double?
 }
 
@@ -24,6 +33,20 @@ struct SeekerProfile: Identifiable, Codable, Hashable {
     var fullName: String
     var reliabilityBadgeEarned: Bool
     var skillBadges: [String]
+    
+    // --- New fields for Seeker Verification ---
+    var isIDVerified: Bool // ID scan verification status
+    var idVerificationMethod: String? // e.g., "stripe_identity", "persona"
+    var idVerificationDate: Date?
+    var sideGigBasicsQuizScore: Int?
+    var sideGigBasicsQuizCompletedAt: Date?
+    // --- Contact verification fields ---
+    var isContactVerified: Bool // Changed to non-optional as it's often a base state
+    var contactVerificationMethod: String?
+    var contactVerificationInitiatedAt: Date?
+    var contactVerificationConfirmedAt: Date?
+    // --- End New fields ---
+
     var avgRating: Double?
 }
 
@@ -78,3 +101,21 @@ struct Transaction: Identifiable, Codable, Hashable {
     var createdAt: Date
     var appFeeCents: Int?
 }
+
+// MARK: - New Gig-related Domain Models
+
+struct GigApplication: Identifiable, Codable, Hashable {
+    var id: String // objectId for the application
+    var gigId: String
+    var seekerId: String
+    var status: String // e.g., "pending", "accepted", "rejected", "withdrawn"
+    var appliedAt: Date
+}
+
+struct SavedGig: Identifiable, Codable, Hashable {
+    var id: String // objectId for the saved gig entry
+    var gigId: String
+    var seekerId: String
+    var savedAt: Date
+}
+

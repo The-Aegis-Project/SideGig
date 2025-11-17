@@ -30,7 +30,7 @@ final class SeekerMapViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         do {
-            let results = try await backend.fetchNearbyGigs(lat: center.latitude, lng: center.longitude, radiusMeters: radiusMeters)
+            let results = try await backend.fetchNearbyGigs(lat: center.latitude, lng: center.longitude, radiusMeters: radiusMeters, payType: nil, gigType: nil, status: nil)
             self.gigs = results
         } catch {
             self.errorMessage = error.localizedDescription

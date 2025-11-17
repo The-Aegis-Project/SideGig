@@ -1,210 +1,82 @@
 import Foundation
-import ParseSwift
+import AuthenticationServices
 
+// New enum for combined sign-up profile details
+enum SignUpProfileDetails {
+    case seeker(fullName: String)
+    case business(businessName: String, address: String, latitude: Double, longitude: Double)
+    
+    var role: UserRole {
+        switch self {
+        case .seeker: return .seeker
+        case .business: return .business
+        }
+    }
+}
+
+/// A protocol defining the interface for the app's backend services.
+/// This allows for interchangeable backend implementations (e.g., live, mock, test).
 protocol BackendService {
     var isAuthenticated: Bool { get }
     var currentUserId: String? { get }
+
     func configure() async throws
-    func signIn(email: String, password: String) async throws
-    func signUp(email: String, password: String) async throws
+    // Updated signUp method to include role and initial profile data
+    func signUp(email: String, password: String, profileDetails: SignUpProfileDetails) async throws -> String
+    
+    // Updated social sign-in methods to optionally accept profile details for new users.
+    // The UI should provide these details if a new user is detected during social sign-in.
+    func signInWithApple(credential: ASAuthorizationAppleIDCredential, profileDetails: SignUpProfileDetails?) async throws -> String
+    func signInWithGoogle(idToken: String, profileDetails: SignUpProfileDetails?) async throws -> String
+    
+    // Re-introducing signIn for email/password as it's used in LoginView
+    func signIn(email: String, password: String) async throws -> String
+
     func signOut() async throws
-    func fetchUserRole(userId: String) async throws -> UserRole?
-    func setUserRole(userId: String, role: UserRole) async throws
-    func fetchNearbyGigs(lat: Double, lng: Double, radiusMeters: Double) async throws -> [Gig]
-    // Request a password reset email for the given address. Implementations may
-    // integrate with the backend provider to send a reset link or temporary code.
     func requestPasswordReset(email: String) async throws
-    // SSO sign-in stubs for external providers. Implementations should wire
-    // to Apple/Google sign-in flows when available.
-    func signInWithApple() async throws
-    func signInWithGoogle() async throws
-}
+    func fetchUserRole(userId: String) async throws -> UserRole?
+    // Re-introducing setUserRole for cases where a role is selected after initial sign-in,
+    // but wasn't set during the sign-up process itself (e.g., existing user or social sign-in without profile details).
+    func setUserRole(userId: String, role: UserRole) async throws
 
-final class Back4AppService: BackendService {
-    private(set) var isAuthenticated: Bool = false
-    private(set) var currentUserId: String? = nil
+    // MARK: - Profile Management
+    // createSeekerProfile and createBusinessProfile will now be called internally by the signUp methods
+    // but are kept public for direct profile creation/updates if needed outside of initial sign-up.
+    func createSeekerProfile(userId: String, fullName: String) async throws -> SeekerProfile
+    func fetchSeekerProfile(userId: String) async throws -> SeekerProfile?
+    func updateSeekerProfile(profile: SeekerProfile) async throws -> SeekerProfile // Use domain model for updates
 
-    init() {}
+    func createBusinessProfile(userId: String, businessName: String, address: String, latitude: Double, longitude: Double) async throws -> BusinessProfile
+    func fetchBusinessProfile(userId: String) async throws -> BusinessProfile?
+    func updateBusinessProfile(profile: BusinessProfile) async throws -> BusinessProfile // Use domain model for updates
 
-    func configure() async throws {
-        // Ensure Back4App keys exist in Info.plist (populated via Keys.xcconfig)
-        guard
-            Bundle.main.object(forInfoDictionaryKey: "BACK4APP_APPLICATION_ID") as? String != nil,
-            Bundle.main.object(forInfoDictionaryKey: "BACK4APP_CLIENT_KEY") as? String != nil,
-            URL(string: "https://parseapi.back4app.com") != nil
-        else {
-            throw NSError(domain: "Config", code: 1, userInfo: [NSLocalizedDescriptionKey: "Missing Back4App keys in Info.plist or invalid URL"])
-        }
+    // MARK: - Seeker Verification
+    // Placeholder for actual ID scan service integration
+    func initiateSeekerIDVerification(userId: String) async throws -> URL // Returns a URL for a third-party service
+    func completeSeekerIDVerification(userId: String, verificationResult: Data) async throws // Processes callback from service
 
-        // ParseSwift should be initialized early in App lifecycle (App.init()).
-        // We expect initialization to have already happened there. If you see
-        // missing-key warnings, ensure `Keys.xcconfig` is assigned to the
-        // active build configuration and Info.plist contains the substituted keys.
+    func completeSideGigBasicsQuiz(userId: String, quizScore: Int) async throws -> SeekerProfile
 
-        // Restore session if available using the typed AppUser
-        if let user = AppUser.current {
-            self.isAuthenticated = true
-            self.currentUserId = user.objectId
-        } else {
-            self.isAuthenticated = false
-            self.currentUserId = nil
-        }
-    }
+    // Contact verification for seekers (email or phone)
+    func initiateSeekerContactVerification(userId: String, contact: String, via: String) async throws -> SeekerProfile
+    func confirmSeekerContactVerification(userId: String, code: String) async throws -> SeekerProfile
 
-    func signIn(email: String, password: String) async throws {
-        let user = try await AppUser.login(username: email, password: password)
-        self.isAuthenticated = true
-        self.currentUserId = user.objectId
-    }
-
-    func signUp(email: String, password: String) async throws {
-        var user = AppUser()
-        user.username = email
-        user.email = email
-        user.password = password
-        let registered = try await user.signup()
-        self.isAuthenticated = true
-        self.currentUserId = registered.objectId
-    }
-
-    func signOut() async throws {
-        try await AppUser.logout()
-        self.isAuthenticated = false
-        self.currentUserId = nil
-    }
-
-    func fetchUserRole(userId: String) async throws -> UserRole? {
-        // Query typed Profile objects for the given userId
-        let query = Profile.query(
-            // Where userId == provided id
-            // ParseSwift provides an operator-based query DSL; this builds a typed query.
-            "userId" == userId
-        )
-
-        if let profile = try? await query.first() {
-            if let roleString = profile.role {
-                return UserRole(rawValue: roleString)
-            }
-        }
-        return nil
-    }
-
-    func setUserRole(userId: String, role: UserRole) async throws {
-        // Try to find an existing Profile for this user
-        let query = Profile.query("userId" == userId)
-        if var existing = try? await query.first() {
-            existing.role = role.rawValue
-            _ = try await existing.save()
-        } else {
-            let profile = Profile(userId: userId, role: role.rawValue)
-            _ = try await profile.save()
-        }
-    }
-
-    func fetchNearbyGigs(lat: Double, lng: Double, radiusMeters: Double) async throws -> [Gig] {
-        // Simple approach: query open gigs and filter by distance locally.
-        // (Back4App may store a GeoPoint or separate lat/lng fields; here we assume numeric `latitude`/`longitude` fields exist.)
-        let query = GigParse.query("status" == "open")
-        let results = try await query.find()
-
-        // Haversine distance filter
-        func distanceMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double) -> Double {
-            let toRad = Double.pi / 180
-            let dLat = (lat2 - lat1) * toRad
-            let dLon = (lon2 - lon1) * toRad
-            let a = sin(dLat/2) * sin(dLat/2) + cos(lat1*toRad) * cos(lat2*toRad) * sin(dLon/2) * sin(dLon/2)
-            let c = 2 * atan2(sqrt(a), sqrt(1-a))
-            let earth = 6371000.0 // meters
-            return earth * c
-        }
-
-        let filtered = results.compactMap { obj -> Gig? in
-            guard
-                let objectId = obj.objectId,
-                let businessId = obj.businessId,
-                let title = obj.title,
-                let description = obj.description,
-                let gigType = obj.gigType,
-                let payType = obj.payType,
-                let gigBudget = obj.gigBudget,
-                let materialsBudget = obj.materialsBudget,
-                let status = obj.status,
-                let latitudeVal = obj.latitude,
-                let longitudeVal = obj.longitude,
-                let createdAt = obj.createdAt
-            else { return nil }
-
-            let d = distanceMeters(lat1: lat, lon1: lng, lat2: latitudeVal, lon2: longitudeVal)
-            if d > radiusMeters { return nil }
-
-            return Gig(
-                id: objectId,
-                businessId: businessId,
-                assignedSeekerId: obj.assignedSeekerId,
-                title: title,
-                description: description,
-                gigType: gigType,
-                payType: payType,
-                gigBudgetCents: gigBudget,
-                materialsBudgetCents: materialsBudget,
-                status: status,
-                latitude: latitudeVal,
-                longitude: longitudeVal,
-                createdAt: createdAt,
-                agreementId: obj.agreementId,
-                receiptImageUrl: obj.receiptImageUrl,
-                isEscrowFunded: obj.isEscrowFunded ?? false
-            )
-        }
-
-        return filtered
-    }
-
-    func requestPasswordReset(email: String) async throws {
-        // Back4App / ParseSwift does not provide a typed async helper in this
-        // minimal example. Replace this stub with a real endpoint call when
-        // integrating with your backend or Parse Cloud Function.
-        // For now, act as a no-op to simulate success.
-        return
-    }
-
-    func signInWithApple() async throws {
-        // Placeholder stub. Implement ASAuthorizationAppleIDProvider flow in
-        // the app and exchange credential with the backend as needed.
-        throw NSError(domain: "SSO", code: 1, userInfo: [NSLocalizedDescriptionKey: "Sign in with Apple not implemented yet"]) 
-    }
-
-    func signInWithGoogle() async throws {
-        // Placeholder stub. Integrate Google Sign-In SDK and exchange tokens
-        // with your backend implementation.
-        throw NSError(domain: "SSO", code: 1, userInfo: [NSLocalizedDescriptionKey: "Sign in with Google not implemented yet"]) 
-    }
-
-    // MARK: - Mapping
-    // NOTE: `PFObject` was part of the Parse ObjC SDK. When migrating to ParseSwift,
-    // implement a typed ParseObject-backed `Gig` and provide mapping here.
-    // The old `mapGig(_:)` helper that referenced `PFObject` was removed.
-}
-
-// Minimal typed ParseUser for ParseSwift usage.
-// Consider moving this to `Models/` and expanding fields as needed.
-struct AppUser: ParseUser {
-    var emailVerified: Bool?
+    // MARK: - Business Verification
+    func linkBusinessGoogleProfile(userId: String, placeId: String, businessName: String, address: String, latitude: Double, longitude: Double) async throws -> BusinessProfile
+    func linkBusinessYelpProfile(userId: String, yelpId: String, businessName: String, address: String, latitude: Double, longitude: Double) async throws -> BusinessProfile
     
-    var authData: [String : [String : String]?]?
-    
-    // Required Parse fields
-    var objectId: String?
-    var createdAt: Date?
-    var updatedAt: Date?
-    var ACL: ParseACL?
-    var originalData: Data?
+    func initiateBusinessMailVerification(userId: String, address: String) async throws -> BusinessProfile
+    func confirmBusinessMailVerification(userId: String, code: String) async throws -> BusinessProfile
 
-    // Standard user fields
-    var username: String?
-    var email: String?
-    var password: String?
+    // MARK: - Gig Management
+    // MVP Features
+    func fetchGigDetails(gigId: String) async throws -> Gig?
+    func applyForGig(gigId: String, seekerId: String) async throws -> GigApplication
 
-    // Convenience initializer
-    init() {}
+    // Optional Features
+    // Updated fetchNearbyGigs to include server-side filtering parameters
+    func fetchNearbyGigs(lat: Double, lng: Double, radiusMeters: Double, payType: String?, gigType: String?, status: String?) async throws -> [Gig]
+    func saveGig(gigId: String, seekerId: String) async throws -> SavedGig
+    func fetchSavedGigs(seekerId: String) async throws -> [Gig]
 }
+

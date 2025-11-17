@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ParseSwift
+import GoogleSignIn // Import GoogleSignIn
 
 @main
 struct Capstone_Project_SideGigApp: App {
@@ -23,6 +24,15 @@ struct Capstone_Project_SideGigApp: App {
         } else {
             print("Warning: Back4App keys missing from Info.plist — Parse not initialized")
         }
+        
+        // Configure Google Sign-In
+        if let googleClientID = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_CLIENT_ID") as? String {
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: googleClientID)
+            print("Google Sign-In configured from Info.plist values")
+        } else {
+            print("Warning: GOOGLE_CLIENT_ID missing from Info.plist — Google Sign-In not fully configured")
+        }
+
 
         _appState = StateObject(wrappedValue: AppState(backend: Back4AppService()))
     }
@@ -34,6 +44,11 @@ struct Capstone_Project_SideGigApp: App {
                 .task {
                     await appState.bootstrap()
                 }
+                // Handle Google Sign-In URL callbacks
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
     }
 }
+
