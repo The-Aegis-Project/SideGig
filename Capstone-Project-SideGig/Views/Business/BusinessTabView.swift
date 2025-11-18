@@ -12,11 +12,11 @@ struct BusinessTabView: View {
 
     var body: some View {
         TabView {
-            Text("Dashboard").tabItem { Label("Dashboard", systemImage: "rectangle.grid.2x2") }
+            BusinessDashboardView().environmentObject(appState).tabItem { Label("Dashboard", systemImage: "rectangle.grid.2x2") }
             Text("Applicants").tabItem { Label("Applicants", systemImage: "person.3") }
-            Text("Post Gig").tabItem { Label("Post Gig", systemImage: "plus.circle") }
+            PostGigView().environmentObject(appState).tabItem { Label("Post Gig", systemImage: "plus.circle") }
             Text("Messages").tabItem { Label("Messages", systemImage: "bubble.left.and.bubble.right") }
-            ProfileView().tabItem { Label("Profile", systemImage: "person.crop.circle") }
+            BusinessProfileView().tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
     }
 }

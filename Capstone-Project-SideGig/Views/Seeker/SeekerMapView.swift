@@ -27,7 +27,17 @@ struct SeekerMapView: View {
                     ForEach(viewModel.gigs) { gig in
                         let coordinate = CLLocationCoordinate2D(latitude: gig.latitude, longitude: gig.longitude)
                         Annotation(gig.title, coordinate: coordinate) {
-                            Button(action: { selectedGig = gig }) {
+                            Button(action: {
+                                // Fetch full gig details from the backend before presenting
+                                Task {
+                                    if let full = await viewModel.fetchGigDetails(gigId: gig.id) {
+                                        selectedGig = full
+                                    } else {
+                                        // If fetch failed, fall back to showing the local copy
+                                        selectedGig = gig
+                                    }
+                                }
+                            }) {
                                 Image(systemName: gig.gigType == "immediate" ? "mappin.circle.fill" : "mappin")
                                     .font(.title2)
                                     .foregroundStyle(gig.gigType == "immediate" ? .red : .blue)
@@ -50,7 +60,12 @@ struct SeekerMapView: View {
                 }
             }
             .sheet(item: $selectedGig) { gig in
-                GigDetailsView(gig: gig)
+                // Present role-specific detail view when possible
+                if let role = appState.role, role == .seeker {
+                    SeekerGigDetailsView(gig: gig).environmentObject(appState)
+                } else {
+                    BusinessGigDetailsView(gig: gig)
+                }
             }
             .onAppear {
                 // Inject the real backend into the existing StateObject view model

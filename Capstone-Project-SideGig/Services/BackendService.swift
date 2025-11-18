@@ -78,5 +78,10 @@ protocol BackendService {
     func fetchNearbyGigs(lat: Double, lng: Double, radiusMeters: Double, payType: String?, gigType: String?, status: String?) async throws -> [Gig]
     func saveGig(gigId: String, seekerId: String) async throws -> SavedGig
     func fetchSavedGigs(seekerId: String) async throws -> [Gig]
-}
 
+    // Create gig with currency (ISO code)
+    func createGig(businessId: String, title: String, description: String, gigType: String, payType: String, gigBudgetCents: Int, materialsBudgetCents: Int, latitude: Double, longitude: Double, currency: String) async throws -> Gig
+
+    // Save a favorite location for a business
+    func saveFavoriteLocation(businessId: String, name: String?, latitude: Double, longitude: Double) async throws -> Bool
+}

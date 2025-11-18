@@ -13,11 +13,12 @@ struct SeekerTabView: View {
 
     var body: some View {
         TabView {
-            Text("Map Placeholder").tabItem { Label("Map", systemImage: "map") }
-            Text("My Gigs").tabItem { Label("My Gigs", systemImage: "list.bullet") }
+            // Show the seeker map view
+            SeekerMapView().tabItem { Label("Map", systemImage: "map") }
+            SeekerGigDetailsView(gig: <#Gig#>).tabItem { Label("My Gigs", systemImage: "list.bullet") }
             Text("Saved").tabItem { Label("Saved", systemImage: "bookmark") }
             Text("Messages").tabItem { Label("Messages", systemImage: "bubble.left.and.bubble.right") }
-            ProfileView().tabItem { Label("Profile", systemImage: "person.crop.circle") }
+            SeekerProfileView().tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
     }
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 import ParseSwift
+@preconcurrency import ParseSwift // Add this line to relax strict concurrency checks for ParseSwift types
 import CoreLocation
 import AuthenticationServices
 import GoogleSignIn
@@ -627,6 +628,122 @@ class Back4AppService: BackendService {
 
         return resultGigs
     }
+
+    // MARK: - Business Dashboard & Post Gig Flow
+    // Create a new gig as a business
+    func createGig(businessId: String, title: String, description: String, gigType: String, payType: String, gigBudgetCents: Int, materialsBudgetCents: Int, latitude: Double, longitude: Double, currency: String = "USD") async throws -> Gig {
+        var newGig = GigParse()
+        newGig.businessId = businessId
+        newGig.title = title
+        newGig.description = description
+        newGig.gigType = gigType
+        newGig.payType = payType
+        newGig.gigBudgetCents = gigBudgetCents
+        newGig.materialsBudgetCents = materialsBudgetCents
+        newGig.status = "open"
+        newGig.location = try ParseGeoPoint(latitude: latitude, longitude: longitude)
+        newGig.currency = currency
+
+        let saved = try await newGig.save()
+        return saved.toDomainModel()
+    }
+
+    // Fetch all gigs posted by a business
+    func fetchGigsForBusiness(businessId: String) async throws -> [Gig] {
+        let query = GigParse.query().where("businessId" == businessId)
+        let results = try await query.find()
+        return results.compactMap { $0.toDomainModel() }
+    }
+
+    // Bulk applicant counts for a business's gigs (returns mapping gigId -> count)
+    func fetchApplicantCountsForBusiness(businessId: String) async throws -> [String: Int] {
+        // Get all gigs for the business
+        let gigs = try await fetchGigsForBusiness(businessId: businessId)
+        let gigIds = gigs.map { $0.id }
+
+        guard !gigIds.isEmpty else { return [:] }
+
+        // Use concurrent tasks to fetch counts per gig to avoid depending on Parse aggregation APIs
+        var counts: [String: Int] = [:]
+        try await withThrowingTaskGroup(of: (String, Int).self) { group in
+            for gid in gigIds {
+                group.addTask {
+                    // Run Parse calls on MainActor by creating a Task isolated to MainActor and awaiting its value.
+                    let c = try await Task { @MainActor in
+                        try await GigApplicationParse.query().where("gigId" == gid).count()
+                    }.value
+                    return (gid, c)
+                }
+            }
+
+            for try await (gid, c) in group {
+                counts[gid] = c
+            }
+        }
+
+        return counts
+    }
+
+    // Fetch seeker profiles for all applicants to a gig
+    func fetchApplicants(for gigId: String) async throws -> [SeekerProfile] {
+        // Find all applications for the gig
+        let applications = try await Task { @MainActor in
+            try await GigApplicationParse.query().where("gigId" == gigId).find()
+        }.value
+
+        var seekers: [SeekerProfile] = []
+        for app in applications {
+            if let seekerId = app.seekerId {
+                // Lookup seeker profile by userId
+                if let parseProfile = try? await Task(operation: { @MainActor in try await SeekerProfileParse.query().where("userId" == seekerId).first() }).value {
+                    seekers.append(parseProfile.toDomainModel())
+                }
+            }
+        }
+
+        return seekers
+    }
+
+    // Assign a seeker to a gig and update statuses
+    func assignSeeker(seekerId: String, to gigId: String) async throws -> Gig {
+        // Fetch the gig
+        guard var parseGig = try? await Task(operation: { @MainActor in try await GigParse.query().where("objectId" == gigId).first() }).value else {
+            throw ProfileError.gigNotFound(gigId)
+        }
+
+        // Update assignment and status
+        parseGig.assignedSeekerId = seekerId
+        parseGig.status = "assigned"
+
+        let savedGig = try await Task { @MainActor in try await parseGig.save() }.value
+
+        // Update the application status for this seeker
+        if var application = try? await Task(operation: { @MainActor in try await GigApplicationParse.query().where("gigId" == gigId).where("seekerId" == seekerId).first() }).value {
+            application.status = "accepted"
+            _ = try await Task { @MainActor in try await application.save() }.value
+        }
+
+        // Optionally, mark other applications as rejected (best-effort)
+        let otherApps = try await Task { @MainActor in try await GigApplicationParse.query().where("gigId" == gigId).where("seekerId" != seekerId).find() }.value
+        for var oa in otherApps {
+            oa.status = "rejected"
+            _ = try? await Task { @MainActor in try await oa.save() }.value // Best-effort
+        }
+
+        return savedGig.toDomainModel()
+    }
+
+    // Save a favorite location for a business
+    func saveFavoriteLocation(businessId: String, name: String?, latitude: Double, longitude: Double) async throws -> Bool {
+        var fav = FavoriteLocationParse()
+        fav.businessId = businessId
+        fav.name = name
+        fav.location = try ParseGeoPoint(latitude: latitude, longitude: longitude)
+        fav.savedAt = Date()
+
+        _ = try await fav.save()
+        return true
+    }
     
     // Custom errors for better error handling in the app
     enum ProfileError: Error, LocalizedError {
@@ -661,4 +778,3 @@ class Back4AppService: BackendService {
         }
     }
 }
-

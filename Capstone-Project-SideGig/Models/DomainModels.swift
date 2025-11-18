@@ -67,6 +67,7 @@ struct Gig: Identifiable, Codable, Hashable {
     var agreementId: String?
     var receiptImageUrl: String?
     var isEscrowFunded: Bool
+    var currency: String // ISO currency code (e.g. "USD", "CAD")
 }
 
 struct Agreement: Identifiable, Codable, Hashable {
@@ -118,4 +119,3 @@ struct SavedGig: Identifiable, Codable, Hashable {
     var seekerId: String
     var savedAt: Date
 }
-

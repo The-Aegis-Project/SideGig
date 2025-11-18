@@ -37,4 +37,23 @@ final class SeekerMapViewModel: ObservableObject {
         }
         isLoading = false
     }
+
+    /// Fetch full gig details from the backend for a specific gig id.
+    /// Returns the domain `Gig` if found, otherwise nil.
+    func fetchGigDetails(gigId: String) async -> Gig? {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+        do {
+            if let gig = try await backend.fetchGigDetails(gigId: gigId) {
+                return gig
+            } else {
+                errorMessage = "Gig not found"
+                return nil
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+            return nil
+        }
+    }
 }

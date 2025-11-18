@@ -26,6 +26,7 @@ struct GigParse: ParseObject {
     var agreementId: String?
     var receiptImageUrl: String?
     var isEscrowFunded: Bool?
+    var currency: String? // ISO currency code stored on the Parse object
 
     init() {}
 
@@ -51,7 +52,8 @@ struct GigParse: ParseObject {
             createdAt: self.createdAt ?? Date(),
             agreementId: self.agreementId,
             receiptImageUrl: self.receiptImageUrl,
-            isEscrowFunded: self.isEscrowFunded ?? false // This should be `self.isEscrowFunded ?? false` for consistency if it's stored in Parse
+            isEscrowFunded: self.isEscrowFunded ?? false,
+            currency: self.currency ?? "USD"
         )
     }
 }
@@ -303,3 +305,19 @@ struct SavedGigParse: ParseObject {
     }
 }
 
+// A Parse representation of a Favorite Location for a business
+struct FavoriteLocationParse: ParseObject {
+    var objectId: String?
+    var createdAt: Date?
+    var updatedAt: Date?
+    var ACL: ParseACL?
+    var originalData: Data?
+
+    var businessId: String?
+    var name: String?
+    var location: ParseGeoPoint?
+    var savedAt: Date?
+
+    init() {}
+    static var className: String { "FavoriteLocation" }
+}
