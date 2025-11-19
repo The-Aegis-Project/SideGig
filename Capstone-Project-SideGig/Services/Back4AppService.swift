@@ -12,31 +12,9 @@ import CoreLocation
 import AuthenticationServices
 import GoogleSignIn
 
-// Define a custom user object for this app.
-// This is where you can add custom properties to the user, e.g. "role", "fullName", etc.
-// Moved here to resolve "Cannot find 'SideGigUser' in scope" errors.
-struct SideGigUser: ParseUser {
-    // These are required by ParseUser
-    var objectId: String?
-    var createdAt: Date?
-    var updatedAt: Date?
-    var ACL: ParseACL?
-    var originalData: Data?
+// Note: The `SideGigUser` struct has been moved to `DomainModels.swift`
 
-    // These are the default properties you get with a ParseUser
-    var username: String?
-    var password: String?
-    var email: String?
-    var emailVerified: Bool?
-    var authData: [String : [String : String]?]?
-
-    // Your custom properties
-    var role: String?
-    var fullName: String?
-}
-
-
-class Back4AppService: BackendService {
+class Back4AppService: BackendService, Sendable { // Mark class as Sendable
     // Your singleton instance
     static let shared = Back4AppService()
 
@@ -629,6 +607,65 @@ class Back4AppService: BackendService {
         return resultGigs
     }
 
+    // NEW: Fetch all gigs for a seeker, categorized by status
+    func fetchSeekerGigs(seekerId: String) async throws -> [SeekerGigStatus: [Gig]] {
+        return try await withThrowingTaskGroup(of: (SeekerGigStatus, [Gig]).self, returning: [SeekerGigStatus: [Gig]].self) { group in
+            
+            // Task 1: Fetch Saved Gigs
+            group.addTask {
+                let savedEntries = try await Task { @MainActor in try await SavedGigParse.query().where("seekerId" == seekerId).find() }.value
+                let gigIds = savedEntries.compactMap { $0.gigId }
+                guard !gigIds.isEmpty else { return (.saved, []) }
+                
+                var gigs: [Gig] = []
+                for id in gigIds {
+                    if let parseGig = try? await Task(operation: { @MainActor in try await GigParse.query().where("objectId" == id).first() }).value {
+                        await gigs.append(parseGig.toDomainModel())
+                    }
+                }
+                return (.saved, gigs)
+            }
+            
+            // Task 2: Fetch Applied Gigs
+            group.addTask {
+                let apps = try await Task { @MainActor in try await GigApplicationParse.query().where("seekerId" == seekerId).find() }.value
+                let gigIds = apps.compactMap { $0.gigId }
+                guard !gigIds.isEmpty else { return (.applied, []) }
+                
+                var gigs: [Gig] = []
+                for id in gigIds {
+                    if let parseGig = try? await Task(operation: { @MainActor in try await GigParse.query().where("objectId" == id, "status" == "open").first() }).value {
+                        await gigs.append(parseGig.toDomainModel())
+                    }
+                }
+                return (.applied, gigs)
+            }
+            
+            // Task 3: Fetch Active Gigs
+            group.addTask {
+                let activeStatuses = ["assigned", "active", "pending_approval"]
+                let allAssigned = try await Task { @MainActor in try await GigParse.query().where("assignedSeekerId" == seekerId).find() }.value
+                let gigs = allAssigned.filter { activeStatuses.contains($0.status ?? "") }
+                return (.active, gigs.map { $0.toDomainModel() })
+            }
+            
+            // Task 4: Fetch Completed Gigs
+            group.addTask {
+                let completedStatuses = ["complete", "cancelled"]
+                let allAssigned = try await Task { @MainActor in try await GigParse.query().where("assignedSeekerId" == seekerId).find() }.value
+                let gigs = allAssigned.filter { completedStatuses.contains($0.status ?? "") }
+                return (.completed, gigs.map { $0.toDomainModel() })
+            }
+            
+            var categorizedGigs: [SeekerGigStatus: [Gig]] = [:]
+            for try await (status, gigs) in group {
+                categorizedGigs[status] = gigs
+            }
+            return categorizedGigs
+        }
+    }
+
+
     // MARK: - Business Dashboard & Post Gig Flow
     // Create a new gig as a business
     func createGig(businessId: String, title: String, description: String, gigType: String, payType: String, gigBudgetCents: Int, materialsBudgetCents: Int, latitude: Double, longitude: Double, currency: String = "USD") async throws -> Gig {
@@ -744,9 +781,126 @@ class Back4AppService: BackendService {
         _ = try await fav.save()
         return true
     }
+
+    // NEW: Fetch message-relevant gigs for a seeker
+    func fetchSeekerMessageThreads(seekerId: String) async throws -> [MessageThreadInfo] {
+        var threadInfos: [MessageThreadInfo] = []
+
+        // 1. Fetch all applications made by the seeker
+        let applications = try await Task { @MainActor in
+            try await GigApplicationParse.query().where("seekerId" == seekerId).find()
+        }.value
+
+        var relevantGigIds = Set<String>()
+        for app in applications {
+            if let gigId = app.gigId {
+                relevantGigIds.insert(gigId)
+            }
+        }
+        
+        // 2. Fetch gigs where the seeker is assigned
+        let assignedGigs = try await Task { @MainActor in
+            try await GigParse.query().where("assignedSeekerId" == seekerId).find()
+        }.value
+        
+        for gig in assignedGigs {
+            if let objectId = gig.objectId { // Use optional binding for objectId
+                relevantGigIds.insert(objectId)
+            }
+        }
+
+        // 3. Fetch details for all unique relevant gigs and their businesses
+        for gigId in relevantGigIds {
+            if let gig = try await fetchGigDetails(gigId: gigId) {
+                // businessId is non-optional on the Gig model, so we can access it directly.
+                let businessId = gig.businessId
+                if let businessProfile = try await fetchBusinessProfile(userId: businessId) {
+                    let info = MessageThreadInfo(
+                        id: gig.id,
+                        gigId: gig.id,
+                        gigTitle: gig.title,
+                        businessId: businessProfile.id,
+                        businessName: businessProfile.businessName
+                    )
+                    threadInfos.append(info)
+                }
+            }
+        }
+
+        return threadInfos.sorted { $0.gigTitle < $1.gigTitle } // Sort for consistent display
+    }
+
+    // NEW: Fetch message threads for a business
+    func fetchBusinessMessageThreads(businessId: String) async throws -> [BusinessMessageThreadInfo] {
+        // 1. Fetch all gigs posted by the business
+        let gigs = try await fetchGigsForBusiness(businessId: businessId)
+        
+        // Use a task group to fetch thread info for each gig concurrently
+        return try await withThrowingTaskGroup(of: [BusinessMessageThreadInfo].self, returning: [BusinessMessageThreadInfo].self) { group in
+            
+            for gig in gigs {
+                group.addTask {
+                    var threadsForGig: [BusinessMessageThreadInfo] = []
+                    
+                    // If a seeker is assigned, only show a thread for them, regardless of gig status.
+                    if let assignedSeekerId = gig.assignedSeekerId, !assignedSeekerId.isEmpty {
+                        if let seekerProfile = try await self.fetchSeekerProfile(userId: assignedSeekerId) {
+                            let info = BusinessMessageThreadInfo(
+                                id: "\(gig.id)_\(seekerProfile.id)",
+                                gigId: gig.id,
+                                gigTitle: gig.title,
+                                seekerId: seekerProfile.id,
+                                seekerName: seekerProfile.fullName
+                            )
+                            threadsForGig.append(info)
+                        }
+                    } 
+                    // If the gig is still "open" for applications, show a thread for each applicant.
+                    else if gig.status == "open" {
+                        // Fetch all applications for this gig
+                        let applications = try await Task { @MainActor in
+                            try await GigApplicationParse.query().where("gigId" == gig.id).find()
+                        }.value
+                        
+                        // For each application, fetch the seeker's profile and create a thread info
+                        for app in applications {
+                            if let seekerId = app.seekerId, let seekerProfile = try await self.fetchSeekerProfile(userId: seekerId) {
+                                let info = BusinessMessageThreadInfo(
+                                    id: "\(gig.id)_\(seekerProfile.id)",
+                                    gigId: gig.id,
+                                    gigTitle: gig.title,
+                                    seekerId: seekerProfile.id,
+                                    seekerName: seekerProfile.fullName
+                                )
+                                threadsForGig.append(info)
+                            }
+                        }
+                    }
+                    // For other statuses without an assigned seeker (e.g., cancelled before assignment), 
+                    // no threads will be generated, which is the desired behavior.
+                    
+                    return threadsForGig
+                }
+            }
+            
+            var allThreads: [BusinessMessageThreadInfo] = []
+            for try await threadsForGig in group {
+                allThreads.append(contentsOf: threadsForGig)
+            }
+            
+            // Sort by gig title, then by seeker name for consistent ordering
+            return allThreads.sorted {
+                if $0.gigTitle != $1.gigTitle {
+                    return $0.gigTitle < $1.gigTitle
+                } else {
+                    return $0.seekerName < $1.seekerName
+                }
+            }
+        }
+    }
     
     // Custom errors for better error handling in the app
-    enum ProfileError: Error, LocalizedError {
+    enum ProfileError: Error, LocalizedError, Sendable { // Mark enum as Sendable
         case currentUserNotFound
         case unauthorizedRoleUpdate
         case profileNotFound(String?) // Updated to allow optional ID

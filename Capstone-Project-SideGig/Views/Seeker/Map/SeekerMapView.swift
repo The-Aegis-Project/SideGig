@@ -53,9 +53,9 @@ struct SeekerMapView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Gigs Near You")
+            .navigationBarTitle("Gigs Near You", displayMode: .inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: refresh) { Image(systemName: "arrow.clockwise") }
                 }
             }

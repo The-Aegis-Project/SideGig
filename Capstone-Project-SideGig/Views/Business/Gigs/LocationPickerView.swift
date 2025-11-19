@@ -54,30 +54,22 @@ struct LocationPickerView: View {
                     }
                 } else {
                     ZStack(alignment: .top) {
-                        // Use the MKCoordinateRegion-based initializer to remain compatible across SDKs
-                        Map(coordinateRegion: $region)
-                            .ignoresSafeArea(edges: .bottom)
-                            .overlay(alignment: .center) {
+                        if #available(iOS 17.0, macOS 14.0, *) {
+                            ModernMapView(region: $region) {
                                 if let place = selectedPlace {
-                                    VStack(spacing: 6) {
-                                        Image(systemName: "mappin.circle.fill")
-                                            .font(.system(size: 40))
-                                            .foregroundColor(.red)
-                                            .shadow(radius: 2)
-                                            .allowsHitTesting(false)
-                                        if let title = place.title {
-                                            Text(title)
-                                                .font(.caption)
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 4)
-                                                .background(.ultraThinMaterial)
-                                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                                                .allowsHitTesting(false)
-                                        }
-                                    }
-                                    .offset(y: -20)
+                                    pinOverlay(for: place)
                                 }
                             }
+                        } else {
+                            // Use the MKCoordinateRegion-based initializer to remain compatible across SDKs
+                            Map(coordinateRegion: $region)
+                                .ignoresSafeArea(edges: .bottom)
+                                .overlay(alignment: .center) {
+                                    if let place = selectedPlace {
+                                        pinOverlay(for: place)
+                                    }
+                                }
+                        }
                     }
                 }
             }
@@ -110,6 +102,27 @@ struct LocationPickerView: View {
         }
     }
 
+    @ViewBuilder
+    private func pinOverlay(for place: MapPlace) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: "mappin.circle.fill")
+                .font(.system(size: 40))
+                .foregroundColor(.red)
+                .shadow(radius: 2)
+                .allowsHitTesting(false)
+            if let title = place.title {
+                Text(title)
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .allowsHitTesting(false)
+            }
+        }
+        .offset(y: -20)
+    }
+    
     private func performSearch() {
         guard !searchQuery.isEmpty else { return }
         let req = MKLocalSearch.Request()
@@ -209,6 +222,47 @@ struct LocationPickerView: View {
         if !address.postalCode.isEmpty { components.append(address.postalCode) }
         let final = components.filter { !$0.isEmpty }
         return final.isEmpty ? nil : final.joined(separator: ", ")
+    }
+}
+
+/// A wrapper for `CLLocationCoordinate2D` to make it `Equatable`.
+fileprivate struct EquatableCoordinate: Equatable {
+    let coordinate: CLLocationCoordinate2D
+
+    init(_ coordinate: CLLocationCoordinate2D) {
+        self.coordinate = coordinate
+    }
+
+    static func == (lhs: EquatableCoordinate, rhs: EquatableCoordinate) -> Bool {
+        lhs.coordinate.latitude == rhs.coordinate.latitude && lhs.coordinate.longitude == rhs.coordinate.longitude
+    }
+}
+
+@available(iOS 17.0, macOS 14.0, *)
+private struct ModernMapView<Content: View>: View {
+    @Binding var region: MKCoordinateRegion
+    @ViewBuilder let content: () -> Content
+    
+    @State private var position: MapCameraPosition
+
+    init(region: Binding<MKCoordinateRegion>, @ViewBuilder content: @escaping () -> Content) {
+        self._region = region
+        self.content = content
+        self._position = State(initialValue: .region(region.wrappedValue))
+    }
+    
+    var body: some View {
+        Map(position: $position)
+            .ignoresSafeArea(edges: .bottom)
+            .overlay(alignment: .center) {
+                content()
+            }
+            .onChange(of: EquatableCoordinate(region.center)) {
+                position = .region(region)
+            }
+            .onMapCameraChange { context in
+                region = context.region
+            }
     }
 }
 

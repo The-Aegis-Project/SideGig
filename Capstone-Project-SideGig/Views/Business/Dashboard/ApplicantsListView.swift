@@ -72,5 +72,6 @@ struct ApplicantsListView: View {
 }
 
 #Preview {
-    ApplicantsListView(gig: Gig(id: "g1", businessId: "b1", assignedSeekerId: nil, title: "Test", description: "Test", gigType: "immediate", payType: "flat-rate", gigBudgetCents: 1000, materialsBudgetCents: 0, status: "open", latitude: 0, longitude: 0, createdAt: Date(), agreementId: nil, receiptImageUrl: nil, isEscrowFunded: false)).environmentObject(AppState(backend: Back4AppService()))
+    ApplicantsListView(gig: Gig(id: "g1", businessId: "b1", assignedSeekerId: nil, title: "Test", description: "Test", gigType: "immediate", payType: "flat-rate", gigBudgetCents: 1000, materialsBudgetCents: 0, status: "open", latitude: 0, longitude: 0, createdAt: Date(), agreementId: nil, receiptImageUrl: nil, isEscrowFunded: false, currency: "USD")).environmentObject(AppState(backend: Back4AppService()))
 }
+

@@ -13,12 +13,25 @@ struct SeekerTabView: View {
 
     var body: some View {
         TabView {
-            // Show the seeker map view
-            SeekerMapView().tabItem { Label("Map", systemImage: "map") }
-            SeekerGigDetailsView(gig: <#Gig#>).tabItem { Label("My Gigs", systemImage: "list.bullet") }
-            Text("Saved").tabItem { Label("Saved", systemImage: "bookmark") }
-            Text("Messages").tabItem { Label("Messages", systemImage: "bubble.left.and.bubble.right") }
-            SeekerProfileView().tabItem { Label("Profile", systemImage: "person.crop.circle") }
+            // Tab 1: Map for browsing gigs geographically
+            SeekerMapView()
+                .tabItem { Label("Map", systemImage: "map") }
+            
+            // Tab 2: The new consolidated "My Gigs" view
+            SeekerGigsView()
+                .tabItem { Label("My Gigs", systemImage: "list.bullet") }
+            
+            // Tab 3: The new "For You" discovery feed
+            SeekerDiscoveryView()
+                .tabItem { Label("For You", systemImage: "sparkles") }
+            
+            // Tab 4: Messages
+            SeekerMessageThreadsView()
+                .tabItem { Label("Messages", systemImage: "bubble.left.and.bubble.right") }
+
+            // Tab 5: User Profile
+            SeekerProfileView()
+                .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
     }
 }

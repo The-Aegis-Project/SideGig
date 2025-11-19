@@ -1,12 +1,41 @@
-//
-//  BusinessProfile.swift
-//  Capstone-Project-SideGig
-//
-//  Created by Sebastian Torres on 11/15/25.
-//
-
-
 import Foundation
+import ParseSwift
+
+// MARK: - User & Profile Models
+
+// Moved from Back4AppService.swift
+struct SideGigUser: ParseUser, Sendable {
+    // These are required by ParseUser
+    var objectId: String?
+    var createdAt: Date?
+    var updatedAt: Date?
+    var ACL: ParseACL?
+    var originalData: Data?
+
+    // These are the default properties you get with a ParseUser
+    var username: String?
+    var password: String?
+    var email: String?
+    var emailVerified: Bool?
+    var authData: [String : [String : String]?]?
+
+    // Your custom properties
+    var role: String?
+    var fullName: String?
+}
+
+// Moved from BackendService.swift
+enum SignUpProfileDetails: Sendable {
+    case seeker(fullName: String)
+    case business(businessName: String, address: String, latitude: Double, longitude: Double)
+    
+    var role: UserRole {
+        switch self {
+        case .seeker: return .seeker
+        case .business: return .business
+        }
+    }
+}
 
 struct BusinessProfile: Identifiable, Codable, Hashable {
     var id: String // userId link
@@ -48,6 +77,17 @@ struct SeekerProfile: Identifiable, Codable, Hashable {
     // --- End New fields ---
 
     var avgRating: Double?
+}
+
+// MARK: - Gig-related Models
+
+enum SeekerGigStatus: String, CaseIterable, Identifiable {
+    case saved = "Saved"
+    case applied = "Applied"
+    case active = "Active"
+    case completed = "Completed"
+    
+    var id: String { self.rawValue }
 }
 
 struct Gig: Identifiable, Codable, Hashable {
@@ -103,8 +143,6 @@ struct Transaction: Identifiable, Codable, Hashable {
     var appFeeCents: Int?
 }
 
-// MARK: - New Gig-related Domain Models
-
 struct GigApplication: Identifiable, Codable, Hashable {
     var id: String // objectId for the application
     var gigId: String
@@ -118,4 +156,23 @@ struct SavedGig: Identifiable, Codable, Hashable {
     var gigId: String
     var seekerId: String
     var savedAt: Date
+}
+
+// MARK: - Message Thread Info Models
+
+// Renamed from SeekerMessageThreadInfo to MessageThreadInfo to remove duplication
+struct MessageThreadInfo: Identifiable, Hashable, Codable {
+    let id: String // This will be the gigId
+    let gigId: String
+    let gigTitle: String
+    let businessId: String
+    let businessName: String
+}
+
+struct BusinessMessageThreadInfo: Identifiable, Hashable, Codable {
+    let id: String // Unique identifier for the thread (e.g., gigId_seekerId)
+    let gigId: String
+    let gigTitle: String
+    let seekerId: String
+    let seekerName: String
 }

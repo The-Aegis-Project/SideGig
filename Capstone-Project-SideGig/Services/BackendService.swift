@@ -1,22 +1,9 @@
 import Foundation
 import AuthenticationServices
 
-// New enum for combined sign-up profile details
-enum SignUpProfileDetails {
-    case seeker(fullName: String)
-    case business(businessName: String, address: String, latitude: Double, longitude: Double)
-    
-    var role: UserRole {
-        switch self {
-        case .seeker: return .seeker
-        case .business: return .business
-        }
-    }
-}
-
 /// A protocol defining the interface for the app's backend services.
 /// This allows for interchangeable backend implementations (e.g., live, mock, test).
-protocol BackendService {
+protocol BackendService: Sendable { // Mark protocol as Sendable
     var isAuthenticated: Bool { get }
     var currentUserId: String? { get }
 
@@ -84,4 +71,20 @@ protocol BackendService {
 
     // Save a favorite location for a business
     func saveFavoriteLocation(businessId: String, name: String?, latitude: Double, longitude: Double) async throws -> Bool
+
+    // Additions for ApplicantsListView
+    func fetchApplicants(for gigId: String) async throws -> [SeekerProfile]
+    func assignSeeker(seekerId: String, to gigId: String) async throws -> Gig
+
+    // NEW: Fetch all gigs posted by a business
+    func fetchGigsForBusiness(businessId: String) async throws -> [Gig]
+
+    // NEW: Fetch message-relevant gigs for a seeker
+    func fetchSeekerMessageThreads(seekerId: String) async throws -> [MessageThreadInfo]
+
+    // NEW: Fetch message threads for a business
+    func fetchBusinessMessageThreads(businessId: String) async throws -> [BusinessMessageThreadInfo]
+
+    // NEW: Fetch all gigs for a seeker, categorized by status
+    func fetchSeekerGigs(seekerId: String) async throws -> [SeekerGigStatus: [Gig]]
 }
